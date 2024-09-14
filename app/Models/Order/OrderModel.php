@@ -2,14 +2,12 @@
 
 namespace App\Models\Order;
 
+use App\Support\Models\BaseModel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 
-class OrderModel extends Model
+class OrderModel extends BaseModel
 {
     use HasFactory;
-
-    protected $guarded = [];
 
     protected $casts = [];
 
