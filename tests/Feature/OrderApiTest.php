@@ -15,30 +15,38 @@ class OrderApiTest extends TestCase
 {
     const API_POST_PATH = '/api/orders';
 
+    const DEFAULT_CURRENCY = 'TWD';
+
     use RefreshDatabase;
 
     public function test_create_order_success()
     {
-        $orderData = OrderModel::factory()->raw([
-            'currency' => 'USD',
-        ]);
+        $currencies = [
+            'TWD' => 'orders_twd',
+            'USD' => 'orders_usd',
+            'JPY' => 'orders_jpy',
+            'RMB' => 'orders_rmb',
+            'MYR' => 'orders_myr',
+        ];
 
-        $response = $this->postJson(self::API_POST_PATH, $orderData);
+        foreach ($currencies as $currency => $table) {
+            $orderData = OrderModel::factory()->raw([
+                'currency' => $currency,
+            ]);
 
-        // 驗證回應狀態和 JSON 結果
-        $response->assertStatus(Response::HTTP_OK)
-            ->assertJson(['message' => 'Order created successfully!']);
+            $response = $this->postJson(self::API_POST_PATH, $orderData);
 
-        // 驗證數據是否插入到正確的資料表
-        $this->assertDatabaseHas('orders_usd', [
-            'id' => $orderData['id'],
-        ]);
+            $response->assertStatus(Response::HTTP_OK)
+                ->assertJson(['message' => 'Order created successfully!']);
+
+            $this->assertDatabaseHas($table, [
+                'id' => $orderData['id'],
+            ]);
+        }
     }
 
     public function test_create_order_with_invalid_currency_fails()
     {
-
-        // 偵測事件
         Event::fake();
 
         $orderData = OrderModel::factory()->raw([
@@ -47,39 +55,64 @@ class OrderApiTest extends TestCase
 
         $response = $this->postJson('/api/orders', $orderData);
 
-        $response->assertStatus(Response::HTTP_BAD_REQUEST);
+        $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
 
-        // 驗證沒有觸發事件
         Event::assertNotDispatched(OrderCreated::class);
     }
 
     public function test_find_order_success()
     {
-        $orderData = OrderModel::factory()->raw([
-            'currency' => 'USD',
-        ]);
+        $currencies = ['TWD', 'USD', 'JPY', 'RMB', 'MYR'];
 
-        $resolverService = new OrderCurrencyStrategyResolverService;
-        $resolverService->getOrderCurrencyModel('USD');
-        $orderService = new OrderService($resolverService);
-
-        $orderService->createOrder($orderData);
-
-        $response = $this->getJson(self::API_POST_PATH.'/'.$orderData['id']);
-
-        $response->assertStatus(Response::HTTP_OK)
-            ->assertJson([
-                'data' => $orderData,
+        foreach ($currencies as $currency) {
+            $orderData = OrderModel::factory()->raw([
+                'currency' => $currency,
             ]);
+
+            $resolverService = new OrderCurrencyStrategyResolverService;
+            $resolverService->getOrderCurrencyModel($currency);
+            $orderService = new OrderService($resolverService);
+            $orderService->createOrder($orderData);
+
+            $response = $this->getJson(self::API_POST_PATH.'/'.$orderData['id']);
+
+            $response->assertStatus(Response::HTTP_OK)
+                ->assertJson([
+                    'data' => $orderData,
+                ]);
+        }
     }
 
     public function test_find_order_not_found()
     {
-        // Try to get a non-existing order ID through the API
         $response = $this->getJson(self::API_POST_PATH.'/NOT_CORRECT');
 
-        // Assert that the response is 404 Not Found
         $response->assertStatus(Response::HTTP_NOT_FOUND)
-            ->assertJson(['message' => 'Record not found.']);
+            ->assertJson([
+                'message' => 'Record not found.',
+            ]);
+    }
+
+    public function test_order_id_must_be_unique()
+    {
+        $orderData = OrderModel::factory()->raw([
+            'currency' => self::DEFAULT_CURRENCY,
+        ]);
+
+        $resolverService = new OrderCurrencyStrategyResolverService;
+        $resolverService->getOrderCurrencyModel(self::DEFAULT_CURRENCY);
+        $orderService = new OrderService($resolverService);
+        $existingOrder = OrderModel::factory()->raw([
+            'currency' => self::DEFAULT_CURRENCY,
+        ]);
+
+        $orderService->createOrder($existingOrder);
+
+        $orderData = OrderModel::factory()->raw(['id' => $existingOrder['id']]);
+
+        $response = $this->postJson(self::API_POST_PATH, $orderData);
+
+        $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
+            ->assertJsonValidationErrors('id');
     }
 }

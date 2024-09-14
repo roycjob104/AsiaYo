@@ -2,14 +2,11 @@
 
 namespace App\Exceptions;
 
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
-use Illuminate\Auth\AuthenticationException;
-use Illuminate\Database\RecordsNotFoundException;
 use Illuminate\Http\Response;
-use Illuminate\Session\TokenMismatchException;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -35,51 +32,27 @@ class Handler extends ExceptionHandler
         });
     }
 
-    /**
-     * Render an exception into an HTTP response.
-     */
-    public function render($request, Throwable $e)
+    public function render($request, Throwable $exception)
     {
-        $errorMessage = 'unknown';
-        $httpStatus = Response::HTTP_BAD_REQUEST;
-        switch (! is_null($e)) {
-            case $e instanceof RecordsNotFoundException:
-                $model = $e->getModel();
-                $modelName = class_basename($model);
-                Log::error($modelName.' not found');
-                $errorMessage = 'Record not found.';
-                $httpStatus = Response::HTTP_NOT_FOUND;
+        // 確保以 /api 開頭的路徑返回 JSON
+        if ($request->is('api/*')) {
+            if ($exception instanceof ModelNotFoundException) {
+                return response()->json(['message' => 'Record not found.'], Response::HTTP_NOT_FOUND);
+            }
 
-                break;
-            case $e instanceof AuthenticationException:
-                $errorMessage = 'Unauthenticated';
-                $httpStatus = Response::HTTP_UNAUTHORIZED;
+            if ($exception instanceof NotFoundHttpException) {
+                return response()->json(['message' => 'Endpoint not found.'], Response::HTTP_NOT_FOUND);
+            }
 
-                break;
-            case $e instanceof ValidationException:
-                $flattened = Arr::flatten($e->validator->errors()->all());
-                $errorMessage = implode(' ,', $flattened);
-                $httpStatus = $e->getCode() == 0 ? Response::HTTP_BAD_REQUEST : $e->getCode();
+            if ($exception instanceof ValidationException) {
+                return response()->json(['errors' => $exception->errors()], Response::HTTP_UNPROCESSABLE_ENTITY);
+            }
 
-                break;
-            case $e instanceof TokenMismatchException:
-                $errorMessage = $e->getMessage();
-                $httpStatus = $e->getCode() == 0 ? Response::HTTP_BAD_REQUEST : $e->getCode();
-
-                break;
-            case $e instanceof ConflictException:
-                $errorMessage = $e->getMessage();
-                $httpStatus = Response::HTTP_CONFLICT;
-
-                break;
-            default:
-                $errorMessage = $e->getMessage();
-
-                break;
+            // 針對所有其他例外
+            return response()->json(['message' => $exception->getMessage()], 500);
         }
 
-        return response()->json([
-            'message' => $errorMessage,
-        ], $httpStatus);
+        // 如果不是 /api 路徑則使用預設行為
+        return parent::render($request, $exception);
     }
 }
