@@ -6,8 +6,9 @@ use App\Http\Requests\OrderRequest;
 use Illuminate\Http\Response;
 use App\Services\Order\OrderService;
 use App\Events\OrderCreated;
+use App\Support\Controllers\BaseController;
 
-class OrderController extends Controller
+class OrderController extends BaseController
 {
 
     protected $orderService;
