@@ -16,3 +16,18 @@
 
 ## 其他說明
 資料庫的設計概念是基於orders為主，然後多型關聯(morphTo)到不同的貨幣(orders_twd, orders_usd, orders_jpy, orders_rmb, orders_myr 使用 MorphMany)，主要是讓訂單為唯一的Key，且可以處理不同tables(貨幣)。
+
+
+## Docker-compose
+
+### 背景啟動
+```docker-compose up -d```
+
+### 停止服務
+```docker-compose down```
+
+### 執行資料庫遷移
+```docker-compose exec app php artisan migrate```
+
+### 執行測試
+```docker-compose exec app php artisan test```
