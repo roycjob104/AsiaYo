@@ -4,6 +4,7 @@ namespace Database\Factories\Order;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Models\Order\OrderModel;
+use App\Enums\CurrencyEnum;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\OrderModel>
@@ -28,7 +29,7 @@ class OrderModelFactory extends Factory
                 'street' => $this->faker->streetName,
             ],
             'price' => $this->faker->randomFloat(2, 1000, 5000),
-            'currency' => $this->faker->randomElement(['TWD', 'USD', 'JPY', 'RMB', 'MYR']),
+            'currency' => $this->faker->randomElement(CurrencyEnum::values()),
         ];
     }
 }
