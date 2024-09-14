@@ -58,7 +58,6 @@ class OrderCurrencyStrategyResolverServiceTest extends TestCase
     {
         // Test TWD currency model
         $model = $this->resolverService->getOrderCurrencyModel('TWD');
-        // print_r($model)
         $this->assertEquals(OrderTwdModel::class, $model);
 
         // Test USD currency model

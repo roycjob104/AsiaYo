@@ -29,7 +29,6 @@ class OrderServiceTest extends TestCase
 
     public function test_it_create_order_in_correct_table()
     {
-        // 使用 raw 來生成原始數據
         $data = OrderModel::factory()->raw([
             'currency' => self::CURRENCY,
         ]);
