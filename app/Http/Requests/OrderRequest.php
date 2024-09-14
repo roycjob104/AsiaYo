@@ -2,10 +2,10 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Enum;
 use Illuminate\Validation\Rule;
 use App\Enums\CurrencyEnum;
+use App\Support\Requests\BaseFormRequest;
 
 class OrderRequest extends BaseFormRequest
 {
