@@ -65,18 +65,18 @@ class OrderApiTest extends TestCase
 
         $orderService->createOrder($orderData);
 
-        $response = $this->getJson(self::API_POST_PATH . '/' . $orderData['id']);
+        $response = $this->getJson(self::API_POST_PATH.'/'.$orderData['id']);
 
         $response->assertStatus(Response::HTTP_OK)
             ->assertJson([
-                'id' => $orderData['id'],
+                'data' => $orderData,
             ]);
     }
 
     public function test_find_order_not_found()
     {
         // Try to get a non-existing order ID through the API
-        $response = $this->getJson(self::API_POST_PATH . '/NOT_CORRECT');
+        $response = $this->getJson(self::API_POST_PATH.'/NOT_CORRECT');
 
         // Assert that the response is 404 Not Found
         $response->assertStatus(Response::HTTP_NOT_FOUND)

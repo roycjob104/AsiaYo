@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\OrderRequest;
-use Illuminate\Http\Response;
-use App\Services\Order\OrderService;
 use App\Events\OrderCreated;
+use App\Http\Requests\OrderRequest;
+use App\Http\Responses\OrderResponse;
+use App\Services\Order\OrderService;
 use App\Support\Controllers\BaseController;
+use Illuminate\Http\Response;
 
 class OrderController extends BaseController
 {
-
     protected $orderService;
 
     public function __construct(OrderService $orderService)
@@ -33,10 +33,6 @@ class OrderController extends BaseController
     {
         $order = $this->orderService->find($id);
 
-        if ($order) {
-            return response()->json($order, Response::HTTP_OK);
-        } else {
-            return response()->json(['error' => 'Order not found'], Response::HTTP_NOT_FOUND);
-        }
+        return new OrderResponse($order);
     }
 }
