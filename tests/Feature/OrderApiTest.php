@@ -2,22 +2,25 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
+use App\Events\OrderCreated;
 use App\Models\Order\OrderModel;
 use App\Services\Order\OrderService;
 use App\Services\OrderCurrency\OrderCurrencyStrategyResolverService;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Event;
+use Tests\TestCase;
 
 class OrderApiTest extends TestCase
 {
     const API_POST_PATH = '/api/orders';
+
     use RefreshDatabase;
 
     public function test_create_order_success()
     {
         $orderData = OrderModel::factory()->raw([
-            'currency' => 'USD'
+            'currency' => 'USD',
         ]);
 
         $response = $this->postJson(self::API_POST_PATH, $orderData);
@@ -34,22 +37,29 @@ class OrderApiTest extends TestCase
 
     public function test_create_order_with_invalid_currency_fails()
     {
+
+        // 偵測事件
+        Event::fake();
+
         $orderData = OrderModel::factory()->raw([
-            'currency' => 'INVALID'
+            'currency' => 'INVALID',
         ]);
 
         $response = $this->postJson('/api/orders', $orderData);
 
         $response->assertStatus(Response::HTTP_BAD_REQUEST);
+
+        // 驗證沒有觸發事件
+        Event::assertNotDispatched(OrderCreated::class);
     }
 
     public function test_find_order_success()
     {
         $orderData = OrderModel::factory()->raw([
-            'currency' => 'USD'
+            'currency' => 'USD',
         ]);
 
-        $resolverService = new OrderCurrencyStrategyResolverService();
+        $resolverService = new OrderCurrencyStrategyResolverService;
         $resolverService->getOrderCurrencyModel('USD');
         $orderService = new OrderService($resolverService);
 
