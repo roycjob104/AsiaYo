@@ -2,10 +2,9 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Validation\Rules\Enum;
-use Illuminate\Validation\Rule;
 use App\Enums\CurrencyEnum;
 use App\Support\Requests\BaseFormRequest;
+use Illuminate\Validation\Rule;
 
 class OrderRequest extends BaseFormRequest
 {
@@ -25,7 +24,7 @@ class OrderRequest extends BaseFormRequest
     public function rules()
     {
         return [
-            'id' => 'required|string',
+            'id' => ['required', 'string', Rule::unique('orders', 'id')],
             'name' => 'required|string|max:255',
             'address.city' => 'required|string|max:255',
             'address.district' => 'required|string|max:255',
