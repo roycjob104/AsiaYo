@@ -2,25 +2,25 @@
 
 namespace App\Services\Order;
 
-use App\Models\Order\OrderModel;
-use App\Services\OrderCurrency\OrderCurrencyStrategyResolverService;
+use App\Repositories\OrderCurrencyStrategyResolverRepository;
+use App\Repositories\OrderRepository;
+use App\Support\Services\BaseService;
 use Illuminate\Support\Facades\DB;
 
-class OrderService
+class OrderService extends BaseService
 {
-    protected $orderCurrencyStrategyResolverService;
+    public function __construct(
+        private OrderRepository $orderRepository,
+        private OrderCurrencyStrategyResolverRepository $orderCurrencyStrategyResolverRepository,
 
-    public function __construct(OrderCurrencyStrategyResolverService $orderCurrencyStrategyResolverService)
-    {
-        $this->orderCurrencyStrategyResolverService = $orderCurrencyStrategyResolverService;
-    }
+    ) {}
 
     public function createOrder(array $data)
     {
-        $orderCurrencyModel = $this->orderCurrencyStrategyResolverService->getOrderCurrencyModel($data['currency']);
+        $orderCurrencyRepository = $this->orderCurrencyStrategyResolverRepository->getOrderCurrencyRepository($data['currency']);
 
-        $orderCurrency = DB::transaction(function () use ($orderCurrencyModel, $data) {
-            $orderCurrency = $orderCurrencyModel::create($data);
+        $orderCurrency = DB::transaction(function () use ($data, $orderCurrencyRepository) {
+            $orderCurrency = $orderCurrencyRepository->create($data);
             $orderCurrency->orders()->create([
                 'id' => $orderCurrency->id,
                 'currency_type' => get_class($orderCurrency),
@@ -34,9 +34,6 @@ class OrderService
 
     public function find(string $id)
     {
-        $order = OrderModel::findOrFail($id);
-        $currencyOrder = $order->currency; // 獲取對應的貨幣訂單模型
-
-        return $currencyOrder;
+        return $this->orderRepository->find($id);
     }
 }

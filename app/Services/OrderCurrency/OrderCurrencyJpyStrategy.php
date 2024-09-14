@@ -2,12 +2,12 @@
 
 namespace App\Services\OrderCurrency;
 
-use App\Models\Order\Currencies\OrderJpyModel;
+use App\Repositories\OrderCurrency\OrderJpyRepository;
 
 class OrderCurrencyJpyStrategy implements OrderCurrencyStrategy
 {
-    public function getOrderCurrencyModel()
+    public function getOrderCurrencyRepository()
     {
-        return OrderJpyModel::class;
+        return OrderJpyRepository::new();
     }
 }

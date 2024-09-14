@@ -2,12 +2,12 @@
 
 namespace App\Services\OrderCurrency;
 
-use App\Models\Order\Currencies\OrderUsdModel;
+use App\Repositories\OrderCurrency\OrderUsdRepository;
 
 class OrderCurrencyUsdStrategy implements OrderCurrencyStrategy
 {
-    public function getOrderCurrencyModel()
+    public function getOrderCurrencyRepository()
     {
-        return OrderUsdModel::class;
+        return OrderUsdRepository::new();
     }
 }

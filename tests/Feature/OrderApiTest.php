@@ -5,7 +5,6 @@ namespace Tests\Feature;
 use App\Events\OrderCreated;
 use App\Models\Order\OrderModel;
 use App\Services\Order\OrderService;
-use App\Services\OrderCurrency\OrderCurrencyStrategyResolverService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Event;
@@ -17,7 +16,15 @@ class OrderApiTest extends TestCase
 
     const DEFAULT_CURRENCY = 'TWD';
 
+    protected $orderService;
+
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->orderService = OrderService::new();
+    }
 
     public function test_create_order_success()
     {
@@ -69,10 +76,7 @@ class OrderApiTest extends TestCase
                 'currency' => $currency,
             ]);
 
-            $resolverService = new OrderCurrencyStrategyResolverService;
-            $resolverService->getOrderCurrencyModel($currency);
-            $orderService = new OrderService($resolverService);
-            $orderService->createOrder($orderData);
+            $this->orderService->createOrder($orderData);
 
             $response = $this->getJson(self::API_POST_PATH.'/'.$orderData['id']);
 
@@ -99,9 +103,7 @@ class OrderApiTest extends TestCase
             'currency' => self::DEFAULT_CURRENCY,
         ]);
 
-        $resolverService = new OrderCurrencyStrategyResolverService;
-        $resolverService->getOrderCurrencyModel(self::DEFAULT_CURRENCY);
-        $orderService = new OrderService($resolverService);
+        $orderService = OrderService::new();
         $existingOrder = OrderModel::factory()->raw([
             'currency' => self::DEFAULT_CURRENCY,
         ]);

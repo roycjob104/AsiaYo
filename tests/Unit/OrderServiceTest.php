@@ -4,7 +4,6 @@ namespace Tests\Unit;
 
 use App\Models\Order\OrderModel;
 use App\Services\Order\OrderService;
-use App\Services\OrderCurrency\OrderCurrencyStrategyResolverService;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -15,16 +14,12 @@ class OrderServiceTest extends TestCase
 
     protected $orderService;
 
-    protected $resolverService;
-
     const CURRENCY = 'USD';
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->resolverService = new OrderCurrencyStrategyResolverService;
-        $this->resolverService->getOrderCurrencyModel(self::CURRENCY);
-        $this->orderService = new OrderService($this->resolverService);
+        $this->orderService = OrderService::new();
     }
 
     public function test_it_create_order_in_correct_table()

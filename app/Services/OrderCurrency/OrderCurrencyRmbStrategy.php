@@ -2,12 +2,12 @@
 
 namespace App\Services\OrderCurrency;
 
-use App\Models\Order\Currencies\OrderRmbModel;
+use App\Repositories\OrderCurrency\OrderRmbRepository;
 
 class OrderCurrencyRmbStrategy implements OrderCurrencyStrategy
 {
-    public function getOrderCurrencyModel()
+    public function getOrderCurrencyRepository()
     {
-        return OrderRmbModel::class;
+        return OrderRmbRepository::new();
     }
 }

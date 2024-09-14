@@ -2,27 +2,27 @@
 
 namespace Tests\Unit\Services\OrderCurrency;
 
-use App\Models\Order\Currencies\OrderJpyModel;
-use App\Models\Order\Currencies\OrderMyrModel;
-use App\Models\Order\Currencies\OrderRmbModel;
-use App\Models\Order\Currencies\OrderTwdModel;
-use App\Models\Order\Currencies\OrderUsdModel;
+use App\Repositories\OrderCurrency\OrderJpyRepository;
+use App\Repositories\OrderCurrency\OrderMyrRepository;
+use App\Repositories\OrderCurrency\OrderRmbRepository;
+use App\Repositories\OrderCurrency\OrderTwdRepository;
+use App\Repositories\OrderCurrency\OrderUsdRepository;
+use App\Repositories\OrderCurrencyStrategyResolverRepository;
 use App\Services\OrderCurrency\OrderCurrencyJpyStrategy;
 use App\Services\OrderCurrency\OrderCurrencyMyrStrategy;
 use App\Services\OrderCurrency\OrderCurrencyRmbStrategy;
-use App\Services\OrderCurrency\OrderCurrencyStrategyResolverService;
 use App\Services\OrderCurrency\OrderCurrencyTwdStrategy;
 use App\Services\OrderCurrency\OrderCurrencyUsdStrategy;
 use PHPUnit\Framework\TestCase;
 
-class OrderCurrencyStrategyResolverServiceTest extends TestCase
+class OrderCurrencyStrategyResolverRepositoryTest extends TestCase
 {
     protected $resolverService;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->resolverService = new OrderCurrencyStrategyResolverService;
+        $this->resolverService = OrderCurrencyStrategyResolverRepository::new();
     }
 
     public function testResolveValidCurrency()
@@ -49,21 +49,21 @@ class OrderCurrencyStrategyResolverServiceTest extends TestCase
         $this->resolverService->resolve('INVALID');
     }
 
-    public function testGetOrderCurrencyModel()
+    public function testGetOrderCurrencyRepository()
     {
-        $model = $this->resolverService->getOrderCurrencyModel('TWD');
-        $this->assertEquals(OrderTwdModel::class, $model);
+        $Repository = $this->resolverService->getOrderCurrencyRepository('TWD');
+        $this->assertEquals(OrderTwdRepository::class, get_class($Repository));
 
-        $model = $this->resolverService->getOrderCurrencyModel('USD');
-        $this->assertEquals(OrderUsdModel::class, $model);
+        $Repository = $this->resolverService->getOrderCurrencyRepository('USD');
+        $this->assertEquals(OrderUsdRepository::class, get_class($Repository));
 
-        $model = $this->resolverService->getOrderCurrencyModel('JPY');
-        $this->assertEquals(OrderJpyModel::class, $model);
+        $Repository = $this->resolverService->getOrderCurrencyRepository('JPY');
+        $this->assertEquals(OrderJpyRepository::class, get_class($Repository));
 
-        $model = $this->resolverService->getOrderCurrencyModel('RMB');
-        $this->assertEquals(OrderRmbModel::class, $model);
+        $Repository = $this->resolverService->getOrderCurrencyRepository('RMB');
+        $this->assertEquals(OrderRmbRepository::class, get_class($Repository));
 
-        $model = $this->resolverService->getOrderCurrencyModel('MYR');
-        $this->assertEquals(OrderMyrModel::class, $model);
+        $Repository = $this->resolverService->getOrderCurrencyRepository('MYR');
+        $this->assertEquals(OrderMyrRepository::class, get_class($Repository));
     }
 }
