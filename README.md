@@ -12,3 +12,7 @@
 
 - **策略模式 (Strategy Pattern)**: 透過 `OrderCurrencyStrategyResolverService` 決定使用哪種貨幣策略，根據不同貨幣將訂單存入不同的資料表。
 - **事件驅動模式 (Event-Driven Pattern)**: 當建立訂單時，觸發 `OrderCreated` 事件，由監聽器處理訂單資料存儲的邏輯。
+
+
+## 其他說明
+資料庫的設計概念是基於orders為主，然後多型關聯(morphTo)到不同的貨幣(orders_twd, orders_usd, orders_jpy, orders_rmb, orders_myr 使用 MorphMany)，主要是讓訂單為唯一的Key，且可以處理不同tables(貨幣)。
