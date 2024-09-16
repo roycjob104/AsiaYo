@@ -12,42 +12,256 @@ class OrderRequestValidationTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_order_request_validates_correct_data()
-    {
-        // Using the factory to generate valid raw data
-        $data = OrderModel::factory()->raw();
+    protected $request;
 
-        $request = new OrderRequest;
-        $validator = Validator::make($data, $request->rules());
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->request = new OrderRequest;
+    }
+
+    // Testing 'id' parameter
+    public function test_order_request_fails_when_id_is_missing()
+    {
+        $data = OrderModel::factory()->raw();
+        unset($data['id']);
+
+        $validator = Validator::make($data, $this->request->rules());
+
+        $this->assertTrue($validator->fails());
+        $this->assertArrayHasKey('id', $validator->errors()->toArray());
+    }
+
+    public function test_order_request_fails_when_id_is_not_string()
+    {
+        $data = OrderModel::factory()->raw();
+        $data['id'] = 12345;  // Invalid: should be string
+
+        $validator = Validator::make($data, $this->request->rules());
+
+        $this->assertTrue($validator->fails());
+        $this->assertArrayHasKey('id', $validator->errors()->toArray());
+    }
+
+    // Testing 'name' parameter
+    public function test_order_request_fails_when_name_is_missing()
+    {
+        $data = OrderModel::factory()->raw();
+        unset($data['name']);
+
+        $validator = Validator::make($data, $this->request->rules());
+
+        $this->assertTrue($validator->fails());
+        $this->assertArrayHasKey('name', $validator->errors()->toArray());
+    }
+
+    public function test_order_request_fails_when_name_is_not_string()
+    {
+        $data = OrderModel::factory()->raw();
+        $data['name'] = 12345;  // Invalid: should be string
+
+        $validator = Validator::make($data, $this->request->rules());
+
+        $this->assertTrue($validator->fails());
+        $this->assertArrayHasKey('name', $validator->errors()->toArray());
+    }
+
+    public function test_order_request_fails_when_name_exceeds_max_length()
+    {
+        $data = OrderModel::factory()->raw();
+        $data['name'] = str_repeat('a', OrderRequest::MAX_STRING_LENGTH + 1);
+
+        $validator = Validator::make($data, $this->request->rules());
+
+        $this->assertTrue($validator->fails());
+        $this->assertArrayHasKey('name', $validator->errors()->toArray());
+    }
+
+    public function test_order_request_validates_name_at_max_length()
+    {
+        $data = OrderModel::factory()->raw();
+        $data['name'] = str_repeat('a', OrderRequest::MAX_STRING_LENGTH);
+
+        $validator = Validator::make($data, $this->request->rules());
 
         $this->assertFalse($validator->fails());
     }
 
-    public function test_order_request_fails_with_incorrect_data()
+    // Testing 'address.city' parameter
+    public function test_order_request_fails_when_city_is_missing()
     {
-        // Using the factory to generate valid raw data, then altering it to fail validation
-        $data = OrderModel::factory()->raw([
-            'id' => '',  // Required field missing
-            'name' => '',  // Required field missing
-            'address' => [
-                'city' => '',  // Required field missing
-                'district' => '',  // Required field missing
-                'street' => '',  // Required field missing
-            ],
-            'price' => 'invalid',  // Invalid price, should be numeric
-            'currency' => 'INVALID_CURRENCY',  // Invalid currency, not in enum
-        ]);
+        $data = OrderModel::factory()->raw();
+        unset($data['address']['city']);
 
-        $request = new OrderRequest;
-        $validator = Validator::make($data, $request->rules());
+        $validator = Validator::make($data, $this->request->rules());
 
         $this->assertTrue($validator->fails());
-        $this->assertArrayHasKey('id', $validator->errors()->toArray());
-        $this->assertArrayHasKey('name', $validator->errors()->toArray());
         $this->assertArrayHasKey('address.city', $validator->errors()->toArray());
+    }
+
+    public function test_order_request_fails_when_city_is_not_string()
+    {
+        $data = OrderModel::factory()->raw();
+        $data['address']['city'] = 12345;  // Invalid: should be string
+
+        $validator = Validator::make($data, $this->request->rules());
+
+        $this->assertTrue($validator->fails());
+        $this->assertArrayHasKey('address.city', $validator->errors()->toArray());
+    }
+
+    public function test_order_request_fails_when_city_exceeds_max_length()
+    {
+        $data = OrderModel::factory()->raw();
+        $data['address']['city'] = str_repeat('a', OrderRequest::MAX_STRING_LENGTH + 1);
+
+        $validator = Validator::make($data, $this->request->rules());
+
+        $this->assertTrue($validator->fails());
+        $this->assertArrayHasKey('address.city', $validator->errors()->toArray());
+    }
+
+    public function test_order_request_validates_city_at_max_length()
+    {
+        $data = OrderModel::factory()->raw();
+        $data['address']['city'] = str_repeat('a', OrderRequest::MAX_STRING_LENGTH);
+
+        $validator = Validator::make($data, $this->request->rules());
+
+        $this->assertFalse($validator->fails());
+    }
+
+    // Testing 'address.district' parameter
+    public function test_order_request_fails_when_district_is_missing()
+    {
+        $data = OrderModel::factory()->raw();
+        unset($data['address']['district']);
+
+        $validator = Validator::make($data, $this->request->rules());
+
+        $this->assertTrue($validator->fails());
         $this->assertArrayHasKey('address.district', $validator->errors()->toArray());
+    }
+
+    public function test_order_request_fails_when_district_is_not_string()
+    {
+        $data = OrderModel::factory()->raw();
+        $data['address']['district'] = 12345;  // Invalid: should be string
+
+        $validator = Validator::make($data, $this->request->rules());
+
+        $this->assertTrue($validator->fails());
+        $this->assertArrayHasKey('address.district', $validator->errors()->toArray());
+    }
+
+    public function test_order_request_fails_when_district_exceeds_max_length()
+    {
+        $data = OrderModel::factory()->raw();
+        $data['address']['district'] = str_repeat('a', OrderRequest::MAX_STRING_LENGTH + 1);
+
+        $validator = Validator::make($data, $this->request->rules());
+
+        $this->assertTrue($validator->fails());
+        $this->assertArrayHasKey('address.district', $validator->errors()->toArray());
+    }
+
+    public function test_order_request_validates_district_at_max_length()
+    {
+        $data = OrderModel::factory()->raw();
+        $data['address']['district'] = str_repeat('a', OrderRequest::MAX_STRING_LENGTH);
+
+        $validator = Validator::make($data, $this->request->rules());
+
+        $this->assertFalse($validator->fails());
+    }
+
+    // Testing 'address.street' parameter
+    public function test_order_request_fails_when_street_is_missing()
+    {
+        $data = OrderModel::factory()->raw();
+        unset($data['address']['street']);
+
+        $validator = Validator::make($data, $this->request->rules());
+
+        $this->assertTrue($validator->fails());
         $this->assertArrayHasKey('address.street', $validator->errors()->toArray());
+    }
+
+    public function test_order_request_fails_when_street_is_not_string()
+    {
+        $data = OrderModel::factory()->raw();
+        $data['address']['street'] = 12345;  // Invalid: should be string
+
+        $validator = Validator::make($data, $this->request->rules());
+
+        $this->assertTrue($validator->fails());
+        $this->assertArrayHasKey('address.street', $validator->errors()->toArray());
+    }
+
+    public function test_order_request_fails_when_street_exceeds_max_length()
+    {
+        $data = OrderModel::factory()->raw();
+        $data['address']['street'] = str_repeat('a', OrderRequest::MAX_STRING_LENGTH + 1);
+
+        $validator = Validator::make($data, $this->request->rules());
+
+        $this->assertTrue($validator->fails());
+        $this->assertArrayHasKey('address.street', $validator->errors()->toArray());
+    }
+
+    public function test_order_request_validates_street_at_max_length()
+    {
+        $data = OrderModel::factory()->raw();
+        $data['address']['street'] = str_repeat('a', OrderRequest::MAX_STRING_LENGTH);
+
+        $validator = Validator::make($data, $this->request->rules());
+
+        $this->assertFalse($validator->fails());
+    }
+
+    // Testing 'price' parameter
+    public function test_order_request_fails_when_price_is_missing()
+    {
+        $data = OrderModel::factory()->raw();
+        unset($data['price']);
+
+        $validator = Validator::make($data, $this->request->rules());
+
+        $this->assertTrue($validator->fails());
         $this->assertArrayHasKey('price', $validator->errors()->toArray());
+    }
+
+    public function test_order_request_fails_when_price_is_not_numeric()
+    {
+        $data = OrderModel::factory()->raw();
+        $data['price'] = 'not a number';  // Invalid: should be numeric
+
+        $validator = Validator::make($data, $this->request->rules());
+
+        $this->assertTrue($validator->fails());
+        $this->assertArrayHasKey('price', $validator->errors()->toArray());
+    }
+
+    // Testing 'currency' parameter
+    public function test_order_request_fails_when_currency_is_missing()
+    {
+        $data = OrderModel::factory()->raw();
+        unset($data['currency']);
+
+        $validator = Validator::make($data, $this->request->rules());
+
+        $this->assertTrue($validator->fails());
+        $this->assertArrayHasKey('currency', $validator->errors()->toArray());
+    }
+
+    public function test_order_request_fails_when_currency_is_not_in_enum()
+    {
+        $data = OrderModel::factory()->raw();
+        $data['currency'] = 'INVALID_CURRENCY';  // Invalid: should be in enum
+
+        $validator = Validator::make($data, $this->request->rules());
+
+        $this->assertTrue($validator->fails());
         $this->assertArrayHasKey('currency', $validator->errors()->toArray());
     }
 }

@@ -8,27 +8,21 @@ use Illuminate\Validation\Rule;
 
 class OrderRequest extends BaseFormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
+    public const MAX_STRING_LENGTH = 255;
+
     public function authorize(): bool
     {
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules()
     {
         return [
             'id' => ['required', 'string', Rule::unique('orders', 'id')],
-            'name' => 'required|string|max:255',
-            'address.city' => 'required|string|max:255',
-            'address.district' => 'required|string|max:255',
-            'address.street' => 'required|string|max:255',
+            'name' => 'required|string|max:'.self::MAX_STRING_LENGTH,
+            'address.city' => 'required|string|max:'.self::MAX_STRING_LENGTH,
+            'address.district' => 'required|string|max:'.self::MAX_STRING_LENGTH,
+            'address.street' => 'required|string|max:'.self::MAX_STRING_LENGTH,
             'price' => 'required|numeric',
             'currency' => ['required', Rule::in(CurrencyEnum::values())],
         ];
