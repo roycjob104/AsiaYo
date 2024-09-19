@@ -5,10 +5,13 @@ namespace App\Models\Order\Currencies;
 use App\Enums\CurrencyEnum;
 use App\Models\Order\OrderModel;
 use App\Support\Models\BaseModel;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class OrderCurrencyBaseModel extends BaseModel
 {
+    use HasFactory;
+
     protected $primaryKey = 'id';
 
     public $incrementing = false;

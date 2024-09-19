@@ -33,6 +33,8 @@ services:
       - dbdata:/var/lib/mysql
     networks:
       - laravel
+    ports:
+      - "3306:3306" # Expose MySQL port to the host machine
 
   nginx:
     image: nginx:alpine

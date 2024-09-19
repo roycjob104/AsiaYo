@@ -2,8 +2,8 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -22,11 +22,11 @@ class AppServiceProvider extends ServiceProvider
     {
         // Define the morph map
         Relation::morphMap([
-            'order_twd' => 'App\Models\Order\Currencies\OrderTwdModel',
-            'order_usd' => 'App\Models\Order\Currencies\OrderUsdModel',
-            'order_jpy' => 'App\Models\Order\Currencies\OrderJpyModel',
-            'order_rmb' => 'App\Models\Order\Currencies\OrderRmbModel',
-            'order_myr' => 'App\Models\Order\Currencies\OrderMyrModel',
+            'orders_twd' => 'App\Models\Order\Currencies\OrderTwdModel',
+            'orders_usd' => 'App\Models\Order\Currencies\OrderUsdModel',
+            'orders_jpy' => 'App\Models\Order\Currencies\OrderJpyModel',
+            'orders_rmb' => 'App\Models\Order\Currencies\OrderRmbModel',
+            'orders_myr' => 'App\Models\Order\Currencies\OrderMyrModel',
         ]);
     }
 }
